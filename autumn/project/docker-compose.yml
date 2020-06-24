@@ -1,0 +1,34 @@
+version: "3.7"
+
+volumes:
+  db-data:
+
+services:
+  web:
+    image: node:12-alpine
+    tty: true
+    working_dir: /home/node/app
+    command: "npm run start"
+    volumes:
+      - ./backend:/home/node/app
+      - ./frontend/public:/home/node/public
+    ports:
+      - 80:3000
+
+  db:
+    image: postgres:11
+    restart: always
+    environment:
+      POSTGRES_DB: lntsunday
+      POSTGRES_PASSWORD: lineate4@Sun
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./ops/db-backups:/backup
+    ports:
+      - 5432:5432
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080

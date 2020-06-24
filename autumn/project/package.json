@@ -1,0 +1,35 @@
+{
+  "name": "project-template",
+  "version": "1.0.1",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "lint:backend": "cd backend && npm run style:check",
+    "lint:frontend": "cd frontend && npm run style:check",
+    "pretty:backend": "cd backend && npm run style:pretty",
+    "pretty:frontend": "cd frontend && npm run style:pretty"
+  },
+  "author": "",
+  "license": "ISC",
+  "homepage": "",
+  "dependencies": {
+    "passport": "^0.4.0"
+  },
+  "devDependencies": {
+    "husky": "^3.0.9",
+    "lint-staged": "^9.4.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "npm run lint:backend && npm run lint:frontend"
+    }
+  },
+  "lint-staged": {
+    "*.{js,scss,sass}": [
+      "npm run pretty:backend",
+      "npm run pretty:frontend",
+      "git add"
+    ]
+  }
+}

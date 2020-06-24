@@ -1,0 +1,170 @@
+  В своём домашнем каталоге создать подкаталог linux_ex и зайти в него.
+cd /home/victoriya
+sudo mkdir linux_ex
+
+Создать файл hello.txt  с текстом “Hello world”.
+echo "Hello world" > hello.txt
+
+Добавить в этот файл (разделяя пустыми строками)
+свои имя и фамилию, 
+echo -e "\nVictoriya Kaplun" >> hello.txt
+
+текущую дату  
+echo -e "\n08.09.2019" >> hello.txt
+
+имя пользователя
+echo $USER >> hello.txt
+
+содержимое домашнего каталога (нерекурсивно, список имен файлов, включая скрытые)
+echo "" >> /home/linux_ex/victoriya/hello.txt
+cd /home/victoriya
+ls -a >> /home/victoriya/linux_ex/hello.txt
+
+содержимое корневого каталога (нерекурсивно)
+echo "" >> /home/linux_ex/victoriya/hello.txt
+cd /
+ls >> hello.txt
+
+содержимое каталога /etc
+echo "" >> /home/linux_ex/victoriya/hello.txt
+cd /etc
+ls >> /home/victoriya/linux_ex/hello.txt
+
+только файлы в каталоге /etc 
+echo "" >> /home/victoriya/linux_ex/hello.txt
+find -type f >> /home/victoriya/linux_ex/hello.txt
+
+только подкаталоги в каталоге /etc (нерекурсивно)
+echo "" >> /home/victoriya/linux_ex/hello.txt
+find -maxdepth 1 -type d >> /home/linux_ex/victoriya/hello.txt
+
+содержимое файла /etc/passwd
+echo "" >> /home/victoriya/linux_ex/hello.txt
+cat /etc/passwd >> /home/linux_ex/hello.txt
+
+первый столбец файла /etc/passwd (список юзеров)
+echo "" >> /home/victoriya/linux_ex/hello.txt
+cut -d: -f1 passwd >> /home/victoriya/linux_ex/hello.txt
+
+содержимое файла /etc/group
+cat group >> /home/victoriya/linux_ex/hello.txt
+
+первый столбец файла /etc/group (список групп)
+cut -d: -f1 group >> /home/victoriya/linux_ex/hello.txt
+
+Вывести hello.txt с прокруткой
+less /home/victoriya/linux_ex/hello.txt
+q
+
+Разбить hello.txt на файлы размером 1к, затем собрать обратно.
+split -b 1K hello.txt
+cat x* > hello.txt
+
+Скопировать /var/log в текущий каталог (кроме файлов без доступа) с сохранением времени модификации. В текущем каталоге должен появиться ./var/log
+find /var/log | cpio -pdmuv /home/victoriya/linux_ex/
+
+Для полученной копии
+	вывести объем занимаемого места  
+	du -sh
+
+	вывести все файлы, начинающиеся на ‘a’ (не каталоги)
+    find -maxdepth 1 -type f -name "a*"
+    Cкрытых файлов среди них не будет, поскольку скрытые файлы начинаются с точки, 
+    cоот-но поиск по ним вести не нужно.
+	
+    удалить все файлы, начинающиеся на ‘a’ (не каталоги). Как убедиться, что выполнено правильно?
+    find -maxdepth 1 -type f -name "a*" -delete
+    Чтобы убедиться, что выполнено верно, 
+    нужно ещё раз воспользоваться предыдущей командой и убедиться, что файлы отсутствуют  
+	
+    вывести все файлы со временем последней модификации больше 5 дней;
+    find -mtime +5
+
+    вывести все файлы со временем последней модификации меньше 5 дней;
+    find -mtime -5
+
+    создать каталог archive и переместить туда файлы (не каталоги) со временем модификации больше 5 дней.  
+    mkdir archive
+    find -type f -mtime +5 -exec mv -t /home/victoriya/linux_ex/var/log/archive {} +
+
+Найти все файлы (рекурсивно) с расширением jar в каталогах /opt и /usr.
+find ./opt ./usr -depth -type f -name "*.jar"
+
+Найти все файлы с расширением java, созданные месяц назад плюс-минус одна неделя.
+find / -depth -ctime +23 -ctime - 37 -name "*.java"
+
+1.Установить вручную (без apt-get) java 8 и maven последней версии . Добавить путь запуска в переменную PATH, создать переменную M2_HOME. Выполнить сборку java проекта.
+sudo tar -xzf jdk-8u221-linux-x64.tar.gz -C /opt
+sudo tar -xzf apache-maven-3.6.2-bin.tar.gz -C /opt
+2.добавление переменных в bash.bashrc
+cd /etc
+sudo less bash.bashrc
+v
+---редактирование файла---
+ в конце дописано:
+export JAVA_HOME=/opt/jdk1.8.0_221
+export M2_HOME=/opt/apache-maven-3.6.2
+export PATH=$JAVA_HOME/bin:$M2_HOME/bin:$PATH
+---выход---
+3. сборка проекта
+tar -xzf WebHelloWorld.tar.gz
+Из папки, в которой pom.xml: mvn package
+
+Проанализировать загрузку процессора, объем памяти. Вывести информацию по использованию места в файловой системе. Найти самые большие каталоги (рекурсивно до уровня 2).
+top
+df -h
+du -h --max-depth 2 | sort -n | head -5
+
+Users, groups, access rights
+
+Создать двух юзеров (напр., ivanov, petrov), создать каталог /shared и дать полный доступ этим двум юзерам. У остальных не должно быть доступа даже на чтение.
+sudo adduser ivanov
+sudo adduser petrov
+sudo mkdir shared
+sudo groupadd shared
+sudo gpasswd -a petrov shared
+sudo gpasswd -a ivanov shared
+sudo -s
+chgrp shared /chared
+chmod g+rwx /shared
+chmod uo-rwx /shared
+
+Pipes
+
+Установить MySQL и создать базу ttschool, заполнить данными. Выполнить дамп базы в файл посредством pipe, затем восстановить из файла.
+sudo apt update
+sudo apt-get mysql-server
+mysql -u root
+create database ttschool;
+use ttschool;
+CREATE TABLE `group`(
+id INT(11) NOT NULL AUTO_INCREMENT,
+name VARCHAR(50) NOT NULL,
+room VARCHAR(50) NOT NULL,
+school_id INT(11) NOT NULL,
+FOREIGN KEY (school_id) REFERENCES school (id) ON DELETE CASCADE,
+PRIMARY KEY(id)
+)
+ENGINE=INNODB DEFAULT CHARSET=utf8;
+
+CREATE TABLE trainee(
+id INT(11) NOT NULL AUTO_INCREMENT,
+firstname VARCHAR(50) NOT NULL,
+lastname VARCHAR(50) NOT NULL,
+rating INT(11) NOT NULL,
+group_id INT(11) DEFAULT NULL,
+FOREIGN KEY (group_id) REFERENCES `group` (id) ON DELETE SET NULL,
+PRIMARY KEY (id)
+)
+ENGINE=INNODB DEFAULT CHARSET=utf8;
+insert `group`(name, room) values ('linux', '1234');
+insert trainee (name, rating, grop_id) values ('trainee-name', 0,1);
+
+Дамп:
+mkfifo ttschool_pipe
+gzip -c -9 < ttschool_pipe > /ttschool_dump.gz & mysqldump -uroot -p ttschool > ttschool_pipe
+rm ttschool_pipe
+drop database if exists ttschool;
+Восстановление:
+gunzip -c /ttschool_dump.gz > /ttschool.sql
+mysql -uroot -p ttschool < /ttschool.sql

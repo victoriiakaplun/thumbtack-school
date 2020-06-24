@@ -1,0 +1,458 @@
+swagger: '2.0'
+info:
+  description: "This is a Schedule server for TT dev school final project." 
+  version: "1.0.0"
+  title: "Schedule"
+tags: 
+- name: "User"
+  description: "User operation"
+- name:  "Schedule"
+  description: "Schedules operations"
+- name: "Booking"
+  description: "Slot booking operations"
+- name: "Notification"
+  description: "Booking notifications operations"
+  
+paths:
+  /users/login:
+    post:
+      tags:
+      - "User"
+      summary: "Logs user into the system"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "User login params"
+        required: true
+        schema:
+          $ref: "#/definitions/LoginDtoReq"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/UserDtoRes"        
+        400:
+          description: "Invalid email/Invalid password/No user with current params"
+  /users/register:
+    post:
+      tags:
+      - "User"
+      summary: "Register user into the system"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "User params for registration"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+          201:
+            description: "Created user"
+            schema:
+              $ref: "#/definitions/UserDtoRes"
+          400:
+            description: "Invalid register params/User already exists in the system"
+  /users/logout:
+    get:
+      tags:
+      - "User"
+      summary: "Log out current logged user"
+      responses:
+        200:
+          description: "Successful operation"
+        400:
+          description: "User not found"
+  /users:
+    get:
+      tags:
+      - "User"
+      summary: "Get all users"
+      responses:
+        200:
+           description: "Successful operation"
+           schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/UserDtoRes"
+        400:
+          description: "Invalid operation"
+  /users/{userId}:
+    get:
+      tags:
+      - "User"
+      summary: "Get user by userId"
+      parameters:
+      - name: "userId"
+        in: "path"
+        description: "Id of user that needs to be fetched"
+        type: "integer"
+        required: true
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+              $ref: "#/definitions/UserDtoRes"
+        400:
+          description: "Invalid user id"
+        404:
+          description: "User not found"
+    put:
+      tags:
+      - "User"
+      summary: "Update user info by userId"
+      parameters:
+      - name: "userId"
+        in: "path"
+        description: "Id of user that needs to be updated"
+        required: true
+        type: "integer"
+      - in: "body"
+        name: "body"
+        description: "User params that needs to be updated"
+        required: true
+        schema:
+          $ref: "#/definitions/UserDtoReq"
+      responses:
+        200:
+          description: "Updated user info"
+          schema:
+              $ref: "#/definitions/UserDtoRes"
+        400:
+          description: "Invalid user id"
+        404:
+          description: "User not found"
+    delete:
+      tags:
+      - "User"
+      summary: "Delete user info by userId"
+      parameters:
+      - name: "userId"
+        in: "path"
+        description: "Id of user that needs to be deleted"
+        type: "integer"
+        required: true
+      responses:
+        200:
+          description: "Successful operation"
+        400:
+          description: "Invalid user id"
+        404:
+          description: "User not found"
+  /users/{userId}/slots:
+    get:
+      tags:
+      - "Schedule"
+      summary: "Global user schedule: list of all slots from all users schedules"
+      parameters:
+      - name: "userId"
+        in: "path"
+        description: "Id of user whose global schedule needs to be fetched"
+        type: "integer"
+        required: true
+      responses:
+        200:
+          description: "Successful operations"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Slot"
+        400:
+          description: "Invalid user id"
+        404:
+          description: "User slots not found"
+  /users/{userId}/schedules:
+    get:
+      tags:
+      - "Schedule"
+      summary: "Get all user schedules"
+      parameters:
+      - name: "userId"
+        in: "path"
+        description: "Id of user whose schedule needs to be fetched"
+        type: "integer"
+        required: true
+      responses:
+        200:
+          description: "Successful operations"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Schedule"
+        400:
+          description: "Invalid user id"
+        404:
+          description: "Schedules not found"
+  /users/{userId}/schedules/{scheduleId}:
+    get:
+      tags:
+      - "Schedule"
+      summary: "Get user schedule by scheduleId"
+      parameters:
+      - name: "userId"
+        in: "path"
+        description: "Id of user whose schedule needs to be fetched"
+        type: "integer"
+        required: true
+      - name: "scheduleId"
+        in: "path"
+        description: "Id of schedule that needs to be fetched"
+        type: "integer"
+        required: true
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Schedule"
+        400:
+          description: "Invalid user id/schedule id"
+        404:
+          description: "Schedule not found"
+  /schedules:
+    post: 
+      tags: 
+      - "Schedule"
+      summary: "Create schedule by admin"
+      parameters:
+       - name: "userId"
+         in: "path"
+         description: "Id of user whose schedule needs to be fetched"
+         type: "integer"
+         required: true
+       - name: "scheduleId"
+         in: "path"
+         description: "Id of chedule needs to be fetched"
+         type: "integer"
+         required: true
+       - name: "body"
+         in: "body"
+         description: "Schedule info"
+         schema:
+           $ref: "#/definitions/CreateScheduleDtoReq"
+         required: true
+      responses:
+        201:
+          description: "Successful creation"
+        400: 
+          description: "Bad request"
+  /bookings:
+    post:
+      tags:
+      - "Booking"
+      summary: "Create slot booking"
+      parameters:
+      - name: "body"
+        in: "body"
+        description: "Slot info"
+        schema:
+          $ref: "#/definitions/BookingDtoReq"
+      responses:
+        201:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Booking"
+        400:
+          description: "Bad request"
+    put:
+      tags:
+      - "Booking"
+      summary: "Update booking status by admin"
+      parameters:
+      - name: "body"
+        in: "body"
+        description: "New status info"
+        schema:
+          $ref: "#/definitions/UpdateBookingDtoReq"
+      responses:
+        200:
+          description: "Successful updates"
+          schema:
+            $ref: "#/definitions/Booking"
+        400:
+          description: "Bad request"
+  /bookings/{bookingId}/notifications:
+    get:
+      tags:
+      - "Notification"
+      summary: "Get notifications about booking"
+      parameters:
+      - name: "bookingId"
+        in: "path"
+        type: "integer"
+        description: "Booking id whose notifications need to be fetched"
+        required: true
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Notification"
+        404:
+          description: "Not found"
+        400: 
+          description: "Invalid booking id"
+
+
+
+definitions:
+  LoginDtoReq:
+    type: "object"
+    properties:
+      email: 
+        type: "string"
+      password:
+        type: "string"
+        
+  UserDtoRes:
+    type: "object"
+    properties:
+      id: 
+        type: "integer"
+      name:
+        type: "string"
+      email:
+        type: "string"
+        
+  UserDtoReq:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      email:
+        type: "string"
+        
+  User:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+      name:
+        type: "string"
+      email:
+        type: "string"
+      password:
+        type: "string"
+        
+  Period:
+    type: "object"
+    properties:
+      start:
+        type: "string"
+      end:
+        type: "string"
+  
+  Attribute:
+    type: "object"
+    properties:
+      title:
+        type: "string"
+      type:
+        type: "string"
+      required:
+        type: "boolean"
+        
+  Slot:
+    type: "object"
+    properties:
+      slot_id:
+        type: "integer"
+      schedule_id: 
+        type: "integer"
+      period:
+        $ref: "#/definitions/Period"
+      title:
+        type: "string"
+      attributes:
+        type: "array"
+        items: 
+          $ref: "#/definitions/Attribute"
+   
+  Schedule:
+    type: "object"
+    properties:
+      id: 
+        type: "integer"
+      period:
+        $ref: "#/definitions/Period"
+      slots:
+        type: "array"
+        items:
+          type: "array"
+          items:
+            $ref: "#/definitions/Slot"
+  
+  CreateScheduleDtoReq:
+    type: "object"
+    properties:
+      user_id:
+        type: "integer"
+      title: 
+        type: "string"
+      period:
+        $ref: "#/definitions/Period"
+      attributes_names:
+        type: "array"
+        items: 
+          type: "string"
+  
+  BookingDtoReq:
+    type: "object"
+    properties:
+      user_id:
+        type: "integer"
+      schedule_id:
+        type: "integer"
+      period:
+        $ref: "#/definitions/Period"
+      attributes:
+        type: "array"
+        items:
+          $ref: "#/definitions/Attribute"
+  
+  Booking:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+      user_id:
+        type: "integer"
+      schedule_id:
+        type: "integer"
+      period:
+        $ref: "#/definitions/Period"
+      attributes:
+        type: "array"
+        items:
+          $ref: "#/definitions/Attribute"
+      status:
+        type: "string"
+        enum:
+        - "created"
+        - "confirmed"
+        - "rejected"
+        
+  UpdateBookingDtoReq:
+     type: "object"
+     properties:
+      booking_id:
+        type: "integer"
+      status:
+        type: "string"
+        enum:
+        - "created"
+        - "confirmed"
+        - "rejected"
+  
+  Notification:
+    type: "object"
+    properties:
+      booking_id:
+        type: "integer"
+      type:
+        type: "string"
+        enum:
+        - "created"
+        - "confirmed"
+        - "rejected"
+      isRead:
+        type: boolean

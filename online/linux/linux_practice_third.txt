@@ -1,0 +1,143 @@
+ 
+#!/bin/bash
+
+---> Task 1
+mkdir /home/victoriya/task1/
+
+function print {
+
+echo $1       \;$2   \;$3   \;$4   \;$5 >> $6
+
+}
+
+for((a=0; a < 365; a++))
+do
+
+filename=/home/victoriya/task1/`date +%Y-%m-%d -d "2019-01-01 + ${a}day"`.csv
+print cite country date views clicks ${filename} 
+print www.abc.com USA 2017-01-01 $(RANDOM) $(RANDOM) ${filename}
+print www.bca.com France 2017-01-01 $(RANDOM) $(RANDOM) ${filename}
+done
+
+
+---> Task 2
+
+numberOfFiles = $(ls -l | wc -l) 
+if((numberOfFiles == 366))
+then
+  echo Right file amount!
+
+esle
+  echo Wrong file amount!
+  fi 
+  
+a=0
+touch tmpfile.csv
+while [ $a -le 365 ]; do
+
+awk 'BEGIN{FS=";"} NR > 0 {
+firstelem = $1 
+secondelem = $2
+thirdelem = $3
+$1 = thirdelem
+$2 = firstelem
+$3 = secondelem
+print $0
+}' >> tmpfile.csv /home/victoriya/task1/`date +%Y-%m-%d -d "2019-01-01 + ${a}day"`.csv
+mv tmpfile.csv /home/victoriya/task1/`date +%Y-%m-%d -d "2019-01-01 + ${a}day"`.csv
+a = $(($a + 1))
+done
+
+---> Task 3
+
+#!/bin/bash
+
+mkdir /home/victoriya/task3
+
+touch /home/victoriya/task3/monday.csv
+touch /home/victoriya/task3/tuesday.csv
+touch /home/victoriya/task3/wednesday.csv
+touch /home/victoriya/task3/thursday.csv
+touch /home/victoriya/task3/friday.csv
+touch /home/victoriya/task3/saturday.csv
+touch /home/victoriya/task3/sunday.csv
+
+print columnNames{
+ echo date  \; city     \; country      \; views        \;clicks >> ${filename}
+}
+
+printData{
+    sed -n 2,3p ${filename} > ${dayName}
+}
+
+for filename in $( find '/home/victoriya/task1/' -name '*.csv')
+do
+fbname=$(basename "${filename}" .csv)
+if(date --date="${fbname}" + %A == "Понедельник")
+    then
+    monday = /home/victoriya/task3/monday.csv
+    print columnNames ${monday}
+    printData ${filename} ${monday}
+    else
+if(date --date="${fbname}" + %A == "Вторник")
+    then
+    tuesday = /home/victoriya/task3/tuesday.csv
+    print columnNames ${tuesday}
+    printData ${filename} ${tuesday}
+    else
+if(date --date="${fbname}" + %A == "Среда")
+    then
+    wednesday = /home/victoriya/task3/wednesday.csv
+    print columnNames ${wednesday}
+    printData ${filename} ${wednesday}
+    else
+if(date --date="${fbname}" + %A == "Четверг")
+    then
+    thursday = /home/victoriya/task3/thursday.csv
+    print columnNames ${tursday}
+    printData ${filename} ${thursday}
+    else
+if(date --date="${fbname}" + %A == "Пятница")
+    then
+    friday = /home/victoriya/task3/friday.csv
+    print columnNames ${friday}
+    printData ${filename} ${friday}
+    else
+if(date --date="${fbname}" + %A == "Суббота")
+    then
+    saturday = /home/victoriya/task3/saturday.csv
+    print columnNames ${saturday}
+    printData ${filename} ${saturday}
+    else
+if(date --date="${fbname}" + %A == "Воскресенье")
+    then
+    sunday = /home/victoriya/task3/sunday.csv
+    print columnNames ${sunday}
+    printData ${filename} ${sunday}
+
+    
+done
+
+rmdir /home/victoriya/task1/
+
+---> Task 4
+
+touch javaFiles.txt
+for filename in $(find './thumbtack' -name '*.java' )
+do
+    if grep -q ArrayList "$filename"; then
+        cat "$filename" > "javaFiles.txt"
+    fi
+done    
+
+---> Task 5
+for filename in $(find /etc -maxdepth 1)
+do 
+echo $filename
+done
+
+for filename in $(find /etc -maxdepth 1)
+do 
+echo $(sed -e 's/\//\\/g' -e 's/\\/C:\\/' <<< $filename)
+done
+

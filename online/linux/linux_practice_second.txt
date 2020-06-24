@@ -1,0 +1,102 @@
+Занятие 2
+SSH
+
+Запустить виртуальную машину, зайти по ssh. Сгенерировать пару ключей и настроить по ним доступ. Приватный ключ защитить паролем. После настройки доступа по ключам отключите доступ по паролю.
+Эту часть задания можно считать выполненной, если у вас настроен доступ только по ключам.
+sudo -i
+nano /etc/ssh/sshd_config
+----в файле----
+PermitRootLogin yes
+---------------
+sudo service ssh restart
+sudo passwd root
+
+chmod 644 /etc/ssh
+
+ssh second-machine@ip -v
+Создание пары ключей:
+ssh-keygen
+Копируем публичный ключ на сервер:
+ssh-copy-id second-machine@192.168.56.105
+Заходим без использования пароля:
+ssh second-machine@192.168.56.105
+Отключаем аутентификацию по паролю:
+sudo nano /etc/ssh/sshd_config
+--: PasswordAuthentication no
+sudo systemctl restart ssh
+
+Установка сервиса на удаленной машине
+
+Установить на сервере java.
+sudo apt install default-jre
+Скопировать на сервер приложение webHelloWorld (jar файл) и запустить.
+rsync -r /home/victoriya/Загрузки/WebHelloWorld.jar second-machine@192.168.56.105:/home/second-machine/HelloWorldServer/
+ 
+Выполнить в двух вариантах, с помощью команды screen и в виде службы systemd.
+1)
+sudo apt install screen
+screen -S "my-service"
+java -jar /home/second-machine/HelloWorldServer/WebHelloWorld.jar
+2)
+-копируем папку с -jar в каталог /opt
+sudo cp -R /home/second-machine/HelloWorldServer /opt/
+-создаем сервис helloworld.service
+sudo touch /etc/systemd/system/helloworld.service
+sudo nano /etc/systemd/system/helloworld.service
+----редактируем файл-----
+-------------------------
+sudo systemctl daemon-reload
+sudo enable helloworld.service
+----проверка----
+sudo systemctl start helloworld.service
+sudo systemctl restart helloworld.service
+
+Запустить journalctl для просмотра логов.
+sudo journalctl -u helloworld.service
+ 
+Эту часть задания можно считать выполненной, если по адресу http://192.168.56.105:4567/hello в браузере придет ответ, а в логах journalctl будет информация о запросах
+В браузере строка"Hello World"
+
+
+Сетевые утилиты. 
+
+Запустить WebHelloWorld и проанализировать запросы и ответы с помощью tcpdump  и ngrep.
+--->tcpdump -i enp0s8
+(время, протокол(IP/IPv6), хост, igmp v3 - протокол взаимодействия клиента мулькастового трафика и ближайшего маршрутизатора)
+--->sudo ngrep -d any -W byline port 22
+
+Установить web сервер nginx (без Docker), создать простую страницу, содержащую изображение, get и post формы,  файл для скачивания, форму file upload, установку cookie (например, средствами JS). Проанализировать запросы и ответы для всех этих вариантов.
+Эту часть задания можно считать выполненной, если вы проанализируете запросы и ответы с помощью tcpdump  и ngrep, и выложите ответ в документе репозитория. Отчет в формате: настроил приложение, запустит команду, в консоли вижу следующее (скопировать самую информативную часть вывода из консоли) из этого можно сделать такой-то вывод...
+Установка и проверка работоспособности:
+sudo apt update
+sudo apt install ngix
+sudo ufw app list
+sudo ufw allow 'Nginx HTTP'
+systemclt nginx status(active)
++работоспособсобность проверена просмотром http://192.168.56.105 в браузер(появилось приветствие nginx)
+Создание веб-страницы:
+sudo mkdir -p /var/www/example.com/html
+touch /var/www/example.com/html/index.com
+Настройка серверного блока:
+sudo nano /etc/nginx/sites-available/example.com
+sudo ln -s /etc/nginx/sites-available/example.com /etc/nginx/sites-enabled/
+sudo nano /etc/nginx/nginx.conf
+---> раскомментировать server_names_hash_bucket_size
+sudo nano nginx -t
+--: configuration file syntax is ok
+--: configuratin file test is successful
+sudo systemctl restart nginx
+
+
+
+
+
+Iptables и графические клиенты
+
+Установить на сервере MySql (без Docker) или postgreSQL, средствами iptables закрыть к нему доступ (закрыть порт 3306), проверить, что доступа нет. Запустить графический клиент (MySql Workbench или DBeaver) и проверить доступ. При работе с виртуальной машиной из Windows можно воспользоваться xming.
+Эту часть задания можно считать выполненной, если удалось закрыть порт и подключиться клиентом к БД.
+sudo apt install mysql-server
+на клиенте: mysql-workbench
+sudo iptables -A INPUT -p tcp --dport 3306 -j DROP
+sudo iptables-save
+вторая поптыка подключения с клиента: Cannot connect to Database
